@@ -8,20 +8,22 @@ namespace Zitac.Decisions.AvroSerialization
 {
     internal class AvroDeserializer
     {
-        private string kafkaTopic, schemaUrl, schemaVersion;
+        private string kafkaTopic, schemaUrl, schemaVersion, schema;
         private bool skipSchema = true; 
 
         public AvroDeserializer(
             string kafkaTopic,
             string schemaUrl,
             string schemaVersion,
-            bool skipSchema = true
+            bool skipSchema = true,
+            string schema = ""
             )
         {
             this.kafkaTopic = kafkaTopic;
             this.schemaUrl = schemaUrl;
             this.schemaVersion = schemaVersion;
             this.skipSchema = skipSchema;
+            this.schema = schema;
 
         }
 
@@ -43,7 +45,7 @@ namespace Zitac.Decisions.AvroSerialization
         private string DoMessage(byte[] message)
         {
             var reader = new Avro.IO.BinaryDecoder(new MemoryStream(message));
-            var avro = Avro.Schema.Parse(SchemaAsString());
+            var avro = Avro.Schema.Parse(SchemaString());   
             var deserialized = new GenericDatumReader<GenericRecord>(avro, avro);
             var data = deserialized.Read(null, reader);
 
@@ -59,8 +61,12 @@ namespace Zitac.Decisions.AvroSerialization
             return objString;
         }
 
-        private string SchemaAsString()
+        private string SchemaString()
         {
+            if(this.schema.Length > 0)
+            {
+                return this.schema;
+            }
             var schemaRegistryUrl = this.schemaUrl + "/subjects/" + this.kafkaTopic + "-value/versions/" + this.schemaVersion;
             //var schemaRegistryUrl = "http://localhost:8081/subjects/linustest15-value/versions/latest";
             var httpClient = new HttpClient();
