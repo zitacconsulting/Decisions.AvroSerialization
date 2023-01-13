@@ -3,14 +3,47 @@ using DecisionsFramework.Design.Flow;
 using DecisionsFramework.Design.Flow.CoreSteps;
 using DecisionsFramework.Design.Flow.Mapping;
 using DecisionsFramework.Design.Properties;
+using System.Runtime.Serialization;
 
 namespace Zitac.Decisions.AvroSerialization
 {
-
     [AutoRegisterStep("Avro Message", "Integration", "Message Queues", "Zitac")]
     [Writable]
     public class AvroMessageFromByteArray : BaseFlowAwareStep, ISyncStep, IDataConsumer, IDataProducer
     {
+        [WritableValue]
+        private string messageType = "Byte[]";
+
+        [WritableValue]
+        [DataMember]
+        [PropertyClassification(10, "Message type", new string[] { "[Settings]" })]
+        [SelectStringEditor("MessageTypeSelect")]
+        public string MessageType
+        {
+            get { return messageType; }
+            set {
+                messageType = value;
+                this.OnPropertyChanged("InputData");
+            }
+        }
+
+        //private string MessageTypeSelected;
+
+        [PropertyHidden]
+        public string[] MessageTypeSelect
+        {
+            get
+            {
+                return new[] {
+                    "Byte[]", 
+                    "Base64 String"
+                };
+            }
+            set {
+                return; 
+            }
+        }
+
         [WritableValue]
         private bool getSchemaFromHost;
         //[PropertyClassification(new string[] { "Get Schema from Host" })]
@@ -32,7 +65,15 @@ namespace Zitac.Decisions.AvroSerialization
             get
             {
                 List<DataDescription> dataDescriptionList = new List<DataDescription>();
-                dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(byte[])), "Byte Array Message"));
+                if(MessageType == "Byte[]")
+                { 
+                    dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(byte)), "Byte Array Message", true, false, false));
+                }
+                else
+                {
+                    dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(string)), "Base64 Message"));
+                }
+                
 
                 if (!GetSchemaFromHost)
                 {
@@ -40,7 +81,6 @@ namespace Zitac.Decisions.AvroSerialization
                 }
                 else
                 {
-                    //dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(SchemaFromHost)), "SchemaFromHost"));
                     dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(string)), "Host"));
                     dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(string)), "Topic"));
                     dataDescriptionList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(string)), "Version ('latest')"));
@@ -65,9 +105,9 @@ namespace Zitac.Decisions.AvroSerialization
             try
             {
                 Dictionary<string, object> resultData = new Dictionary<string, object>();
-                byte[] ByteArray = data.Data["Byte Array Message"] as byte[];
+                
 
-                SchemaFromHost SchemaFromHost = new SchemaFromHost();
+                //SchemaFromHost SchemaFromHost = new SchemaFromHost();
 
                 string result = "";
                 if (GetSchemaFromHost)
@@ -75,10 +115,19 @@ namespace Zitac.Decisions.AvroSerialization
                     AvroDeserializer message = new AvroDeserializer(
                         data.Data["Topic"] as string,
                         data.Data["Host"] as string,
-                        data.Data["Version ('latest')"] as string, 
+                        data.Data["Version ('latest')"] as string,
                         this.SkipSchemaInResult
                     );
-                    result = message.GetFromBytes(ByteArray);
+                    if (MessageType == "Byte[]") 
+                    {
+                        byte[] ByteArray = data.Data["Byte Array Message"] as byte[];
+                        result = message.GetFromBytes(ByteArray); 
+                    }
+                    else
+                    {
+                        string Messagestring = data.Data["Base64 Message"] as string;
+                        result = message.GetFromBase64(Messagestring);
+                    }
                 }
                 else
                 {
@@ -89,7 +138,16 @@ namespace Zitac.Decisions.AvroSerialization
                         this.SkipSchemaInResult,
                         data.Data["Schema JSON String"] as string
                     );
-                    result = message.GetFromBytes(ByteArray);
+                    if (MessageType == "Byte[]")
+                    {
+                        byte[] ByteArray = data.Data["Byte Array Message"] as byte[];
+                        result = message.GetFromBytes(ByteArray);
+                    }
+                    else
+                    {
+                        string Messagestring = data.Data["Base64 Message"] as string;
+                        result = message.GetFromBase64(Messagestring);
+                    }
                 }
                 
                 return new ResultData("Done", (IDictionary<string, object>)new Dictionary<string, object>()
