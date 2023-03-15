@@ -7,10 +7,12 @@ using DecisionsFramework.Design.Flow.CoreSteps;
 using DecisionsFramework.Design.Flow.Mapping;
 using System.Security.Cryptography.X509Certificates;
 using System.Runtime.Serialization;
+using DecisionsFramework.Design.ConfigurationStorage.Attributes;
 
 namespace Zitac.Decisions.AvroSerialization
 {
     [AutoRegisterStep("Deserialize Message", "Integration", "Message Queues", "Zitac")]
+    [Writable]
     public class DeserializeMessage : BaseFlowAwareStep, ISyncStep, IDataConsumer, IDataProducer
     {
         public DataDescription[] InputData
