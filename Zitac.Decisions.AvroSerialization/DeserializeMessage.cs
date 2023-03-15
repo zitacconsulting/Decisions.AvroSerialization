@@ -5,6 +5,7 @@ using Confluent.Kafka;
 using Newtonsoft.Json;
 using DecisionsFramework.Design.Flow.CoreSteps;
 using DecisionsFramework.Design.Flow.Mapping;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Zitac.Decisions.AvroSerialization
 {
@@ -17,7 +18,7 @@ namespace Zitac.Decisions.AvroSerialization
             {
                 List<DataDescription> inputList = new List<DataDescription>();
                 inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(byte)), "Byte Array Message", true, false, false));
-                inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(Object)), "Registry Connection"));
+                inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(object)), "Registry Connection"));
                 return inputList.ToArray();
             }
         }
@@ -37,7 +38,7 @@ namespace Zitac.Decisions.AvroSerialization
         {
             try
             {
-                Object connector = data["Registry Connection"] as Object;
+                object connector = data["Registry Connection"] as object;
                 byte[] message = data["Byte Array Message"] as byte[];
 
                 IDeserializer<GenericRecord> deserializer = (IDeserializer<GenericRecord>)connector;

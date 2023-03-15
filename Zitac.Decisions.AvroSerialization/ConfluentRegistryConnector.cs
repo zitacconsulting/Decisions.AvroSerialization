@@ -8,7 +8,6 @@ using Confluent.Kafka;
 using Confluent.SchemaRegistry;
 using Confluent.SchemaRegistry.Serdes;
 using Confluent.Kafka.SyncOverAsync;
-using DecisionsFramework.ServiceLayer.Services.ContextData;
 
 namespace Zitac.Decisions.AvroSerialization
 {
@@ -21,7 +20,7 @@ namespace Zitac.Decisions.AvroSerialization
             get
             {
                 return new[] {
-                    new OutcomeScenarioData("Done", new DataDescription(typeof(Object), "Confluence Registry Connection")),
+                    new OutcomeScenarioData("Done", new DataDescription(typeof(object), "Confluence Registry Connection")),
                     new OutcomeScenarioData("Error")
                 };
             }
@@ -54,7 +53,7 @@ namespace Zitac.Decisions.AvroSerialization
                 IDeserializer<GenericRecord> deserializer = new AvroDeserializer<GenericRecord>(schemaRegistry).AsSyncOverAsync();
 
                 Dictionary<string, object> dictionary = new Dictionary<string, object>();
-                dictionary.Add("Confluence Registry Connection", (Object)deserializer);                
+                dictionary.Add("Confluence Registry Connection", (object)deserializer);                
 
                 return new ResultData("Done", (IDictionary<string, object>)dictionary);
 
