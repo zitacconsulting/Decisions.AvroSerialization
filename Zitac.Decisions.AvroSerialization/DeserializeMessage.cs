@@ -17,9 +17,11 @@ namespace Zitac.Decisions.AvroSerialization
         {
             get
             {
-                List<DataDescription> inputList = new List<DataDescription>();
-                inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(byte)), "Byte Array Message", true, false, false));
-                inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(object)), "Registry Connection"));
+                List<DataDescription> inputList = new List<DataDescription>
+                {
+                    new DataDescription(new DecisionsNativeType(typeof(byte)), "Byte Array Message", true, false, false),
+                    new DataDescription(new DecisionsNativeType(typeof(object)), "Registry Connection")
+                };
 
                 return inputList.ToArray();
             }
