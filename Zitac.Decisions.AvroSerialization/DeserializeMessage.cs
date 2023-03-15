@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using DecisionsFramework.Design.Flow.CoreSteps;
 using DecisionsFramework.Design.Flow.Mapping;
 using System.Security.Cryptography.X509Certificates;
+using System.Runtime.Serialization;
 
 namespace Zitac.Decisions.AvroSerialization
 {
@@ -18,7 +19,8 @@ namespace Zitac.Decisions.AvroSerialization
             {
                 List<DataDescription> inputList = new List<DataDescription>();
                 inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(byte)), "Byte Array Message", true, false, false));
-                inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(object)), "Registry Connection"));
+                inputList.Add(new DataDescription((DecisionsType)new DecisionsNativeType(typeof(string)), "Registry Connection"));
+
                 return inputList.ToArray();
             }
         }
