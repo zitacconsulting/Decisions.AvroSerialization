@@ -8,6 +8,9 @@ using DecisionsFramework.Design.Flow.Mapping;
 using System.Security.Cryptography.X509Certificates;
 using System.Runtime.Serialization;
 using DecisionsFramework.Design.ConfigurationStorage.Attributes;
+using static System.Net.Mime.MediaTypeNames;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Zitac.Decisions.AvroSerialization
 {
@@ -22,7 +25,8 @@ namespace Zitac.Decisions.AvroSerialization
                 List<DataDescription> inputList = new List<DataDescription>
                 {
                     new DataDescription(new DecisionsNativeType(typeof(byte)), "Byte Array Message", true, false, false),
-                    new DataDescription(new DecisionsNativeType(typeof(object)), "Registry Connection")
+                    new DataDescription(new DecisionsNativeType(typeof(object)), "Registry Connection"),
+                    new DataDescription(new DecisionsNativeType(typeof(string)), "Schema Hash")
                 };
 
                 return inputList.ToArray();
@@ -34,7 +38,14 @@ namespace Zitac.Decisions.AvroSerialization
             get
             {
                 return new[] {
-                    new OutcomeScenarioData("Done", new DataDescription(typeof(string), "JSON Message")),
+                    new OutcomeScenarioData("Done", 
+                        new DataDescription(typeof(string), "JSON Message")
+                    ),
+                    new OutcomeScenarioData("New Schema",
+                        new DataDescription(typeof(string), "Schema"),
+                        new DataDescription(typeof(string), "Schema Hash"),
+                        new DataDescription(typeof(string), "JSON Message")
+                    ),
                     new OutcomeScenarioData("Error")
                 };
             }
@@ -46,6 +57,7 @@ namespace Zitac.Decisions.AvroSerialization
             {
                 object connector = data["Registry Connection"] as object;
                 byte[] message = data["Byte Array Message"] as byte[];
+                string schemaHash = data["Schema Hash"] as string;
 
                 IDeserializer<GenericRecord> deserializer = (IDeserializer<GenericRecord>)connector;
                 var deserializedMessage = deserializer.Deserialize(message, false, new SerializationContext());
@@ -54,8 +66,19 @@ namespace Zitac.Decisions.AvroSerialization
                 Dictionary<string, object> dictionary = new Dictionary<string, object>();
                 dictionary.Add("JSON Message", (string)JsonConvert.SerializeObject(contents));
 
-                return new ResultData("Done", (IDictionary<string, object>)dictionary);
+                string schemaFromTrackunit = deserializedMessage.Schema.ToString();
+                string schemaHashFromTrackunit = ComputeHash(schemaFromTrackunit);
 
+                if (schemaHash != schemaHashFromTrackunit)
+                {
+                    dictionary.Add("Schema", schemaFromTrackunit);
+                    dictionary.Add("Schema Hash", schemaHashFromTrackunit);
+                    return new ResultData("New Schema", (IDictionary<string, object>)dictionary);
+                }
+                else
+                {
+                    return new ResultData("Done", (IDictionary<string, object>)dictionary);
+                }
             }
             catch(Exception e)
             {
@@ -66,6 +89,20 @@ namespace Zitac.Decisions.AvroSerialization
                     (object) e.Message
                 }
                 });
+            }
+        }
+
+        private string ComputeHash(string input)
+        {
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                var data = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+                var sb = new StringBuilder();
+                foreach (var c in data)
+                {
+                    sb.Append(c.ToString("x2"));
+                }
+                return sb.ToString();
             }
         }
 
