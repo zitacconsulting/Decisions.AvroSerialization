@@ -1,0 +1,13 @@
+{
+    "ModuleName": "Zitac.AvroSerialization",
+    "ModuleDependencies": null,
+    "Version": "9.1.0.73849",
+    "RequiresLicense": false,
+    "Description": "This module adds Avro Deserialization Steps",
+    "CompiledOnDate": "2023-10-18T11:52:29.8228305+01:30",
+    "CompiledOnServer": "KEVI",
+    "ImagePath": "./CustomImages/avro.svg",
+    "Installed": false,
+    "InstalledVersion": null,
+    "IsGithubModule": false
+}
