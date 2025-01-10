@@ -2,7 +2,7 @@
     "Resources": {
         "NoComponents": true,
         "CoreServicesDlls": [
-            "./Zitac.AvroSerialization/bin/Zitac.AvroSerialization.dll"
+            "./Zitac.AvroSerialization/bin/Zitac.Decisions.AvroSerialization.dll"
         ],
         "ReferenceDlls": [
             "./Confluent.SchemaRegistry.dll",
@@ -12,7 +12,6 @@
         "CustomImages": [
             "avro.svg"
         ],
-        "CustomImages": null,
         "CliDlls": null,
         "WebPages": null,
         "SilverlightDlls": null,

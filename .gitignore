@@ -2,3 +2,4 @@ Confluent.SchemaRegistry.dll
 Confluent.SchemaRegistry.Serdes.Avro.dll
 Avro.dll
 Zitac.AvroSerialization/bin/*
+Zitac.AvroSerialization/obj/*
