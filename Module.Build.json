@@ -1,0 +1,28 @@
+{
+    "Resources": {
+        "NoComponents": true,
+        "CoreServicesDlls": [
+            "./Zitac.AvroSerialization/bin/Zitac.AvroSerialization.dll"
+        ],
+        "ReferenceDlls": [
+            "./Confluent.SchemaRegistry.dll",
+            "./Confluent.SchemaRegistry.Serdes.Avro.dll",
+            "./Avro.dll"
+        ],
+        "CustomImages": [
+            "avro.svg"
+        ],
+        "CustomImages": null,
+        "CliDlls": null,
+        "WebPages": null,
+        "SilverlightDlls": null,
+        "AgentDlls": null,
+        "InstallScript": null,
+        "SqlScripts": null,
+        "ObjectsToImport": null,
+        "MsSqlScript": null
+    },
+    "Version": "9.6.0",
+    "ImagePath": "avro.svg",
+    "Description": "This module adds Avro Deserialization Steps"
+}
